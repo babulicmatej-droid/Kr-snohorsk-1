@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmapa realitného obchodu</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--bg2:#13161e;--bg3:#1e2230;
+  --border:rgba(255,255,255,0.08);
+  --text:#e8eaf0;--text2:#8b90a0;--text3:#4a5060;
+  --green:#2ecf8e;--blue:#4f8ef7;
+  --b10:#1a4a3a;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+
+/* ── B10 LOGO TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--bg)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{background:#1a4a3a;border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;align-items:flex-start;line-height:1}
+.logo-b10{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.logo-rc{font-size:7px;font-weight:500;color:rgba(255,255,255,0.6);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.topbar-right{font-size:11px;color:var(--text3);text-align:right;line-height:1.5}
+
+/* ── STICKY PROGRESS ── */
+.sbar{position:sticky;top:0;z-index:100;background:rgba(13,15,20,0.97);border-bottom:1px solid var(--border);padding:12px 20px 10px}
+.sbar-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.sbar-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.sbar-pct{font-size:24px;font-weight:700;color:var(--text)}
+.sbar-track{height:8px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:99px;width:0%;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .5s ease}
+.sbar-sub{margin-top:5px;font-size:11px;color:var(--text3)}
+
+/* ── PAGE ── */
+.page{max-width:680px;margin:0 auto;padding:24px 16px 80px}
+.page-title{font-size:21px;font-weight:700;margin-bottom:5px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:12px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:var(--green);background:rgba(46,207,142,0.1);border:1px solid rgba(46,207,142,0.2);border-radius:99px;padding:4px 10px;margin-bottom:24px}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:24px}
+.tl-track{position:absolute;left:6px;top:10px;bottom:10px;width:2px;background:var(--bg3);border-radius:2px}
+.tl-fill{position:absolute;top:0;left:0;width:100%;height:0%;background:linear-gradient(180deg,var(--green),var(--blue));border-radius:2px;transition:height .6s ease}
+
+.phase{position:relative;margin-bottom:8px}
+.phase-node{position:absolute;left:-21px;top:16px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bg3);background:var(--bg);z-index:2}
+.phase-node-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:var(--text3)}
+
+details{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+summary{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;list-style:none;user-select:none;-webkit-tap-highlight-color:transparent}
+summary::-webkit-details-marker{display:none}
+.ph-num{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ph-info{flex:1;min-width:0}
+.ph-title{font-size:14px;font-weight:600;color:var(--text)}
+.ph-count{font-size:11px;color:var(--text3);margin-top:1px}
+.ph-tag{font-size:10px;font-weight:500;padding:3px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.ph-arrow{font-size:11px;color:var(--text3);flex-shrink:0;transition:transform .2s;display:inline-block}
+details[open] .ph-arrow{transform:rotate(90deg)}
+.ph-bar{height:2px;margin:0 14px 10px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.ph-bar-fill{height:100%;border-radius:99px;transition:width .4s ease}
+
+/* ── STEPS — using <button> for guaranteed iOS tappability ── */
+.steps{padding:0 10px 10px}
+
+.step-btn{
+  width:100%;
+  display:flex;align-items:flex-start;gap:12px;
+  padding:11px 6px;
+  border:none;border-bottom:1px solid var(--border);
+  background:transparent;
+  color:inherit;
+  font-family:inherit;
+  font-size:inherit;
+  text-align:left;
+  cursor:pointer;
+  border-radius:6px;
+  -webkit-tap-highlight-color:rgba(255,255,255,0.06);
+  transition:background .15s;
+  /* min touch target */
+  min-height:44px;
+}
+.step-btn:last-child{border-bottom:none}
+.step-btn:active{background:rgba(255,255,255,0.04)}
+
+.step-box{
+  width:22px;height:22px;min-width:22px;
+  border-radius:6px;
+  border:1.5px solid rgba(255,255,255,0.2);
+  background:transparent;
+  flex-shrink:0;
+  margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;
+  transition:background .2s,border-color .2s;
+}
+.step-btn.done .step-box{content:'✓'}
+
+.step-body{flex:1;min-width:0}
+.step-txt{font-size:13px;color:var(--text);line-height:1.5;transition:color .2s}
+.step-btn.done .step-txt{color:var(--text3);text-decoration:line-through}
+.step-note{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+
+/* ── FINISH ── */
+.finish{display:none;text-align:center;padding:36px 20px;margin-top:24px;background:linear-gradient(135deg,rgba(46,207,142,.07),rgba(79,142,247,.07));border:1px solid rgba(46,207,142,.2);border-radius:16px}
+.finish.show{display:block;animation:fadeup .5s ease}
+@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.finish-emoji{font-size:36px;margin-bottom:10px}
+.finish-title{font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px}
+.finish-sub{font-size:13px;color:var(--text2)}
+
+/* ── FOOTER ── */
+.footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border)}
+.footer-logo{display:inline-flex;align-items:center;gap:8px;margin-bottom:6px}
+.footer-mark{background:#1a4a3a;border-radius:6px;padding:4px 7px;line-height:1}
+.footer-mark span{font-size:12px;font-weight:800;color:#fff}
+.footer-sub{display:block;font-size:7px;font-weight:500;color:rgba(255,255,255,0.55);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.footer-txt{font-size:11px;color:var(--text3)}
+
+.cf{position:fixed;border-radius:2px;pointer-events:none;z-index:9999;animation:cffall 1.8s ease-in forwards}
+@keyframes cffall{from{transform:translateY(-10px) rotate(0deg);opacity:1}to{transform:translateY(105vh) rotate(600deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <span class="logo-b10">b10</span>
+      <span class="logo-rc">realitné centrum</span>
+    </div>
+  </div>
+  <div class="topbar-right">Realitný obchod<br>2025</div>
+</div>
+
+<div class="sbar">
+  <div class="sbar-top">
+    <span class="sbar-label">Postup obchodu</span>
+    <span class="sbar-pct" id="pct">0 %</span>
+  </div>
+  <div class="sbar-track"><div class="sbar-fill" id="bfill"></div></div>
+  <div class="sbar-sub" id="bsub">0 / 20 krokov dokončených</div>
+</div>
+
+<div class="page">
+  <h1 class="page-title">Roadmapa realitného obchodu</h1>
+  <p class="page-sub">Zaškrtávajte kroky — sledujte ako sa blížite k cieľu.</p>
+  <div class="badge"><div class="badge-dot"></div>Rezervačná zmluva podpísaná · záloha uhradená</div>
+
+  <div class="tl">
+    <div class="tl-track"><div class="tl-fill" id="tlfill"></div></div>
+
+    <!-- PHASE 1 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details open><summary>
+      <div class="ph-num" style="background:rgba(46,207,142,.15);color:#2ecf8e">1</div>
+      <div class="ph-info"><div class="ph-title">Znalecký posudok</div><div class="ph-count" id="pc0">0 / 2 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(46,207,142,.15);color:#2ecf8e">Prebieha</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb0" style="background:#2ecf8e"></div></div>
+    <div class="steps" data-pi="0">
+      <button type="button" class="step-btn" data-color="#2ecf8e"><div class="step-box"></div><div class="step-body"><div class="step-txt">Obhliadka znalca</div><div class="step-note">Pondelok o 9:00 — dohodnutý znalec</div></div></button>
+      <button type="button" class="step-btn" data-color="#2ecf8e"><div class="step-box"></div><div class="step-body"><div class="step-txt">Vypracovanie znaleckého posudku</div><div class="step-note">Čakáme na hotový dokument</div></div></button>
+    </div></details></div>
+
+    <!-- PHASE 2 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details><summary>
+      <div class="ph-num" style="background:rgba(79,142,247,.15);color:#4f8ef7">2</div>
+      <div class="ph-info"><div class="ph-title">Kúpna zmluva</div><div class="ph-count" id="pc1">0 / 3 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(79,142,247,.15);color:#4f8ef7">Súbežne</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb1" style="background:#4f8ef7"></div></div>
+    <div class="steps" data-pi="1">
+      <button type="button" class="step-btn" data-color="#4f8ef7"><div class="step-box"></div><div class="step-body"><div class="step-txt">Vypracovanie návrhu kúpnej zmluvy</div><div class="step-note">Prebieha súbežne so znaleckým posudkom</div></div></button>
+      <button type="button" class="step-btn" data-color="#4f8ef7"><div class="step-box"></div><div class="step-body"><div class="step-txt">Zaslanie návrhu obom stranám na pripomienkovanie</div><div class="step-note">Predávajúci aj kupujúci dostanú zmluvu na kontrolu</div></div></button>
+      <button type="button" class="step-btn" data-color="#4f8ef7"><div class="step-box"></div><div class="step-body"><div class="step-txt">Zapracovanie pripomienok a doladenie zmluvy</div></div></button>
+    </div></details></div>
+
+    <!-- PHASE 3 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details><summary>
+      <div class="ph-num" style="background:rgba(167,139,250,.15);color:#a78bfa">3</div>
+      <div class="ph-info"><div class="ph-title">Schválenie hypotéky</div><div class="ph-count" id="pc2">0 / 3 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(167,139,250,.15);color:#a78bfa">Banka</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb2" style="background:#a78bfa"></div></div>
+    <div class="steps" data-pi="2">
+      <button type="button" class="step-btn" data-color="#a78bfa"><div class="step-box"></div><div class="step-body"><div class="step-txt">Zaslanie znaleckého posudku do banky</div><div class="step-note">Po doručení hotového posudku</div></div></button>
+      <button type="button" class="step-btn" data-color="#a78bfa"><div class="step-box"></div><div class="step-body"><div class="step-txt">Čakanie na schválenie hypotekárneho úveru</div><div class="step-note">Banka vyhodnocuje žiadosť</div></div></button>
+      <button type="button" class="step-btn" data-color="#a78bfa"><div class="step-box"></div><div class="step-body"><div class="step-txt">Doplnenie výšky úveru a finálnych údajov do zmluvy</div><div class="step-note">Po schválení zo strany banky</div></div></button>
+    </div></details></div>
+
+    <!-- PHASE 4 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details><summary>
+      <div class="ph-num" style="background:rgba(245,158,11,.15);color:#f59e0b">4</div>
+      <div class="ph-info"><div class="ph-title">Podpisy zmlúv</div><div class="ph-count" id="pc3">0 / 5 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(245,158,11,.15);color:#f59e0b">Kľúčový krok</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb3" style="background:#f59e0b"></div></div>
+    <div class="steps" data-pi="3">
+      <button type="button" class="step-btn" data-color="#f59e0b"><div class="step-box"></div><div class="step-body"><div class="step-txt">Dohodnutie termínu podpisov</div></div></button>
+      <button type="button" class="step-btn" data-color="#f59e0b"><div class="step-box"></div><div class="step-body"><div class="step-txt">Podpis kúpnych zmlúv — predávajúci</div></div></button>
+      <button type="button" class="step-btn" data-color="#f59e0b"><div class="step-box"></div><div class="step-body"><div class="step-txt">Podpis záložných zmlúv — predávajúci</div></div></button>
+      <button type="button" class="step-btn" data-color="#f59e0b"><div class="step-box"></div><div class="step-body"><div class="step-txt">Podpis úverových zmlúv — kupujúci</div></div></button>
+      <button type="button" class="step-btn" data-color="#f59e0b"><div class="step-box"></div><div class="step-body"><div class="step-txt">Odoslanie hotovostnej časti kúpnej ceny</div></div></button>
+    </div></details></div>
+
+    <!-- PHASE 5 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details><summary>
+      <div class="ph-num" style="background:rgba(249,115,22,.15);color:#f97316">5</div>
+      <div class="ph-info"><div class="ph-title">Kataster a hypotéka</div><div class="ph-count" id="pc4">0 / 3 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(249,115,22,.15);color:#f97316">Úrad</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb4" style="background:#f97316"></div></div>
+    <div class="steps" data-pi="4">
+      <button type="button" class="step-btn" data-color="#f97316"><div class="step-box"></div><div class="step-body"><div class="step-txt">Finančný poradca podá záložné zmluvy na kataster</div></div></button>
+      <button type="button" class="step-btn" data-color="#f97316"><div class="step-box"></div><div class="step-body"><div class="step-txt">Čakanie na plombu z katastra</div></div></button>
+      <button type="button" class="step-btn" data-color="#f97316"><div class="step-box"></div><div class="step-body"><div class="step-txt">Banka spustí čerpanie hypotéky</div><div class="step-note">Po zápise záložného práva</div></div></button>
+    </div></details></div>
+
+    <!-- PHASE 6 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details><summary>
+      <div class="ph-num" style="background:rgba(52,211,153,.15);color:#34d399">6</div>
+      <div class="ph-info"><div class="ph-title">Vklad vlastníckeho práva</div><div class="ph-count" id="pc5">0 / 2 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(52,211,153,.15);color:#34d399">Realitka</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb5" style="background:#34d399"></div></div>
+    <div class="steps" data-pi="5">
+      <button type="button" class="step-btn" data-color="#34d399"><div class="step-box"></div><div class="step-body"><div class="step-txt">Elektronické podanie vkladu vlastníckeho práva</div><div class="step-note">Realitná kancelária podá návrh na kataster</div></div></button>
+      <button type="button" class="step-btn" data-color="#34d399"><div class="step-box"></div><div class="step-body"><div class="step-txt">Priloženie potvrdenia o nedoplatkoch na byte</div></div></button>
+    </div></details></div>
+
+    <!-- PHASE 7 -->
+    <div class="phase"><div class="phase-node"><div class="phase-node-dot"></div></div>
+    <details><summary>
+      <div class="ph-num" style="background:rgba(148,163,184,.15);color:#94a3b8">7</div>
+      <div class="ph-info"><div class="ph-title">Odovzdanie bytu</div><div class="ph-count" id="pc6">0 / 3 krokov</div></div>
+      <div class="ph-tag" style="background:rgba(148,163,184,.15);color:#94a3b8">Finále</div>
+      <span class="ph-arrow">&#9654;</span>
+    </summary>
+    <div class="ph-bar"><div class="ph-bar-fill" id="pb6" style="background:#94a3b8"></div></div>
+    <div class="steps" data-pi="6">
+      <button type="button" class="step-btn" data-color="#94a3b8"><div class="step-box"></div><div class="step-body"><div class="step-txt">Dohodnutie termínu odovzdania bytu</div></div></button>
+      <button type="button" class="step-btn" data-color="#94a3b8"><div class="step-box"></div><div class="step-body"><div class="step-txt">Prepis energií na nového majiteľa</div><div class="step-note">Elektrina, plyn, teplo, voda...</div></div></button>
+      <button type="button" class="step-btn" data-color="#94a3b8"><div class="step-box"></div><div class="step-body"><div class="step-txt">Odovzdanie kľúčov</div><div class="step-note">Realitný obchod je úspešne ukončený</div></div></button>
+    </div></details></div>
+
+  </div>
+
+  <div class="finish" id="finish">
+    <div class="finish-emoji">&#127881;</div>
+    <div class="finish-title">Realitný obchod ukončený!</div>
+    <div class="finish-sub">Blahoželáme — všetky kroky sú splnené.</div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo">
+      <div class="footer-mark"><span>b10</span><span class="footer-sub">realitné centrum</span></div>
+    </div>
+    <div class="footer-txt">Váš partner pri realitnom obchode</div>
+  </div>
+</div>
+
+<script>
+var btns = document.querySelectorAll('.step-btn');
+for (var i = 0; i < btns.length; i++) {
+  btns[i].addEventListener('click', function() {
+    var btn = this;
+    var box = btn.querySelector('.step-box');
+    var color = btn.getAttribute('data-color') || '#4f8ef7';
+    var done = btn.classList.contains('done');
+
+    if (done) {
+      btn.classList.remove('done');
+      box.textContent = '';
+      box.style.background = 'transparent';
+      box.style.borderColor = 'rgba(255,255,255,0.2)';
+    } else {
+      btn.classList.add('done');
+      box.textContent = '\u2713';
+      box.style.background = color;
+      box.style.borderColor = color;
+    }
+    upd();
+  });
+}
+
+function upd() {
+  var all = document.querySelectorAll('.step-btn');
+  var total = all.length;
+  var done = document.querySelectorAll('.step-btn.done').length;
+  var pct = Math.round(done / total * 100);
+
+  document.getElementById('pct').textContent = pct + ' %';
+  document.getElementById('bfill').style.width = pct + '%';
+  document.getElementById('bsub').textContent = done + ' / ' + total + ' krokov dokončených';
+  document.getElementById('tlfill').style.height = pct + '%';
+
+  var phases = document.querySelectorAll('.steps');
+  for (var pi = 0; pi < phases.length; pi++) {
+    var phBtns = phases[pi].querySelectorAll('.step-btn');
+    var phDone = phases[pi].querySelectorAll('.step-btn.done').length;
+    var phTotal = phBtns.length;
+    var phPct = phTotal ? Math.round(phDone / phTotal * 100) : 0;
+    document.getElementById('pb' + pi).style.width = phPct + '%';
+    document.getElementById('pc' + pi).textContent = phDone + ' / ' + phTotal + ' krokov';
+  }
+
+  if (pct === 100) {
+    document.getElementById('finish').classList.add('show');
+    boom();
+  } else {
+    document.getElementById('finish').classList.remove('show');
+  }
+}
+
+function boom() {
+  var cols = ['#2ecf8e','#4f8ef7','#f59e0b','#f97316','#a78bfa','#34d399','#1a4a3a','#fff'];
+  for (var i = 0; i < 55; i++) {
+    (function(d) {
+      setTimeout(function() {
+        var e = document.createElement('div');
+        e.className = 'cf';
+        e.style.left = (Math.random()*100)+'vw';
+        e.style.top = '-10px';
+        e.style.background = cols[Math.floor(Math.random()*cols.length)];
+        var s = (5+Math.random()*7)+'px';
+        e.style.width = s; e.style.height = s;
+        document.body.appendChild(e);
+        setTimeout(function(){ if(e.parentNode) e.parentNode.removeChild(e); },2200);
+      }, d);
+    })(i*30);
+  }
+}
+</script>
+</body>
+</html>

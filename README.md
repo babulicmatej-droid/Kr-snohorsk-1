@@ -1,1 +1,1 @@
-# Kr-snohorsk-1
+# Krasnohorska1
